@@ -1,12 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import Popup from "./Popup";
 import "./App.css";
 import "./bootstrap.min.css";
 import { Button, Modal, Form } from "react-bootstrap";
+import { setTokenSourceMapRange } from "typescript";
+import { resourceLimits } from "worker_threads";
+import { FaBeer } from "@react-icons/all-files/fa/FaBeer";
+import { v4 as uuid } from 'uuid';
+import { RandomUUIDOptions } from "crypto";
+import internal from "stream";
 
 export interface ItemPhoneBookInterface {
+  id: string;
   name: string;
-  number: string;
+  numberphone: string;
   image?: string;
 }
 
@@ -22,37 +29,73 @@ function App() {
 
   const [contacts, setContacts] = useState<ItemPhoneBookInterface[]>([
     {
+      id:"1",
       name: "Aldi Anugra",
-      number: "098763252722",
+      numberphone: "098763252722",
       image: "",
     },
     {
+      id:"2",
       name: "Della Octa A",
-      number: "1253748492",
+      numberphone: "1253748492",
     },
     {
+      id:"3",
       name: "Muhammad Sholeh",
-      number: "09021281823172",
+      numberphone: "09021281823172",
     },
   ]);
 
   // const [showAddContact, setShowAddContact] = useState<boolean>(false);
 
   const [contact, setContact] = useState<ItemPhoneBookInterface>({
+    id:"",
     name: "",
-    number: "",
+    numberphone: "",
   });
 
   const addItem = (item: ItemPhoneBookInterface) => {
     setContacts([...contacts, item]);
+    setShow(false);
   };
 
+  const [name, setName] = useState();
+
+  const [foundUsers, setFoundUsers] = useState(contacts);
+  
+  const filter = (e:any) => {
+    const keyword = e.target.value;
+    if (keyword !== ''){
+      const results = contacts.filter((user) =>{
+        return user.name.toLowerCase().startsWith(keyword.toLowerCase());
+      });
+      console.log(results);
+      setFoundUsers(results);
+    }else{
+      setFoundUsers(contacts);
+    }
+    
+    setName(keyword);
+  };
+
+
   const [contact2, updateContact] = useState<ItemPhoneBookInterface>({
+    id:"",
     name: "",
-    number: "",
+    numberphone: "",
   });
 
-  const updateItem = (item: ItemPhoneBookInterface) => {};
+  const updateItem = (item: ItemPhoneBookInterface) => {
+    for (const obj of contacts) {
+      if (obj.name === name){
+        obj.name = name;
+        break;
+      }
+    }
+    console.log(item);
+    setShow2(false);
+  };
+
   const removeItem = (item: ItemPhoneBookInterface) => {
     setContacts(
       contacts.filter((value, index) => {
@@ -75,30 +118,85 @@ function App() {
             <span className="fw-bold" onClick={handleShow}>
               + Add Contact
             </span>
+            
           </button>
         </div>
 
         <div>
-        <div className="input-group mb-3">
-          <input type="text" className="form-control" placeholder="Search Contact" aria-label="Recipient's username" aria-describedby="button-addon2"></input>
-          <button className="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
+            <input value={name} onChange={filter} type="text" className="form-control" placeholder="Search Contact"></input>
         </div>
-          {/* {/* <form className="form-inline my-2 my-lg-0 ">
-            <input
-              className="form-control mr-sm-2"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
-            />
-            <button
-              className="btn btn-outline-success my-2 my-sm-0"
-              type="submit"
-            >
-              Search
-            </button>
-          </form> */}
-        </div> 
-        
+          
+          <div className="contact rounded">
+          {foundUsers && foundUsers.length > 0 ? (foundUsers.map((contact) => (
+            //isi
+            <div className="d-flex flex-row justify-content-between mb-4">
+                <div className="col-md-6">
+                  <div className="fw-bold"> {contact.name} </div>
+                  <div> {contact.numberphone} </div>
+                </div>
+                  <div className="button-update-delete">
+                    <button
+                      className="btn btn-success w-25 h-75 mr-3"
+                      onClick={handleShow2}
+                    >
+                      Update
+                    </button>
+                    <Modal show={show2}>
+                      <Modal.Header closeButton onClick={handleClose2}>
+                        <Modal.Title>Update Contact Form</Modal.Title>
+                      </Modal.Header>
+                      <Modal.Body>
+                        <div className="fw-bold">Name : </div>
+                        <input
+                          type="text"
+                          name="name"
+                          // defaultValue={contact.name}
+                          onChange={(e) =>
+                            setContact({ ...contact, name: e.target.value })
+                          }
+                          className="w-100"
+                        ></input>
+                        <div className="fw-bold mt-3">Number : </div>
+                        <input
+                          type="text"
+                          name="number"
+                          // defaultValue={contact.numberphone}
+                          onChange={(e) =>
+                            setContact({ ...contact, numberphone: e.target.value })
+                          }
+                          className="w-100"
+                        ></input>
+                      </Modal.Body>
+                      <Modal.Footer>
+                        <Button
+                          variant="primary"
+                          onClick={() => updateItem(contact)}
+                          
+                        >
+                          Perbarui
+                        </Button>
+                        <Button variant="secondary" onClick={handleClose2}>
+                          Tutup
+                        </Button>
+                      </Modal.Footer>
+                    </Modal>
+                    <button
+                      className="btn btn-danger w-25 h-75 ml-5"
+                      onClick={() => removeItem(contact)}
+                    >
+                      Delete
+                    </button>
+                
+                </div>
+              </div>
+            //isi
+          ))) : (
+            <h1>No results found</h1>
+          )}
+          </div>  
+
+          {/* <button className="btn btn-outline-secondary" type="button" id="button-addon2">Search</button> */}
+ 
         <Modal show={show}>
           <Modal.Header closeButton onClick={handleClose}>
             <Modal.Title>Add Contact Form</Modal.Title>
@@ -116,7 +214,7 @@ function App() {
             <input
               defaultValue={" "}
               onChange={(e) =>
-                setContact({ ...contact, number: e.target.value })
+                setContact({ ...contact, numberphone: e.target.value })
               }
               type="text"
               className="w-100"
@@ -133,8 +231,8 @@ function App() {
         </Modal>
 
         {/* <Popup show={showAddContact} addItem={addItem} /> */}
-
-        <div className="contact rounded">
+        
+        {/* <div className="contact rounded">
           {contacts.map((contact) => {
             return (
               <div className="d-flex flex-row justify-content-between mb-4">
@@ -194,11 +292,15 @@ function App() {
                   >
                     Delete
                   </button>
+                  <span>
+                  
+                  </span>
+                  
                 </div>
               </div>
             );
           })}
-        </div>
+        </div> */}
       </div>
     </div>
   );

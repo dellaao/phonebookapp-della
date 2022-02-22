@@ -2,6 +2,11 @@
   /* background-color: bisque; */
 }
 
+.form-control{
+  margin-bottom: 30px;
+  width: 450px !important;
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -19,6 +24,7 @@
   align-items: center;
 }
 
+
 .addcontact button {
   color: white;
   height: 30px;
@@ -29,9 +35,14 @@
   border: none;
 }
 
+.button-update-delete button{
+  
+}
+
 .contact {
   background-color: rgb(235, 235, 235);
-  width: 80%;
+  /* background-color: #FEFBF3; */
+  width: 100%;
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 20px;
@@ -39,6 +50,7 @@
   display: flex;
   flex-direction: column;
 }
+
 
 .contactlist button {
   color: white;
@@ -49,3 +61,5 @@
   background-color: rgb(240, 16, 0);
   border: none;
 }
+
+

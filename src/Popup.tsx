@@ -9,8 +9,9 @@ interface PopupPropsInterface {
 
 const Popup = ({ show, addItem }: PopupPropsInterface) => {
   const [contact, setContact] = useState<ItemPhoneBookInterface>({
+    id:"",
     name: "",
-    number: "",
+    numberphone: "",
   });
   const [showAddContact, setShowAddContact] = useState<boolean>(false);
 
@@ -41,9 +42,9 @@ const Popup = ({ show, addItem }: PopupPropsInterface) => {
                 ></input>
                 <div className="fw-bold mt-3">Number : </div>
                 <input
-                  value={contact.number}
+                  value={contact.numberphone}
                   onChange={(e) =>
-                    setContact({ ...contact, number: e.target.value })
+                    setContact({ ...contact, numberphone: e.target.value })
                   }
                   type="text"
                 ></input>
